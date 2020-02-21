@@ -19,6 +19,6 @@ class Date extends Model
     //relationship date with delivery-time
     public function cities()
     {
-        return $this->hasMany(City::class);
+        return $this->belongsTo(City::class);
     }
 }

@@ -8,27 +8,6 @@ use Illuminate\Http\Request;
 class PartnerController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        $partner = Partner::find(1);
-        return $partner->city;
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -48,35 +27,13 @@ class PartnerController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\Partner  $partner
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Partner $partner)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Partner  $partner
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Partner $partner)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Partner  $partner
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Partner $partner)
+    public function update(Request $request)
     {
         $this->validate($request, [
             'name' => 'required',
@@ -84,7 +41,7 @@ class PartnerController extends Controller
         ]);
 
         if (
-            Partner::where('id', $partner)->update([
+            Partner::where('id', $request->partner)->update([
                 'name' => $request->name,
                 'city_id' => $request->city_id
             ])
@@ -103,14 +60,9 @@ class PartnerController extends Controller
      */
     public function destroy($id)
     {
-        if (Partner::findOrFail($id)->delete()) {
-            return response()->json([
-                'message' => 'Partner was deleted successfully'
-            ]);
-        } else {
-            return response()->json([
-                'message' => 'delete failed of Partners'
-            ]);
-        }
+        Partner::findOrFail($id)->delete();
+        return response()->json([
+            'message' => 'Partner was deleted successfully'
+        ]);
     }
 }

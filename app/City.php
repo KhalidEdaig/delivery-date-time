@@ -27,6 +27,6 @@ class City extends Model
     //inverse relationship City with Date
     public function dates()
     {
-        return $this->belongsTo(Date::class);
+        return $this->hasMany(Date::class);
     }
 }

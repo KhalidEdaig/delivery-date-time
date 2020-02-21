@@ -26,15 +26,15 @@ Route::post(
 
 Route::get(
     'cities/{city_id}/delivery-times',
-    'CityController@getCityDeliveryTimes'
-)->name('cities.getCityDeliveryTimes');
+    'CityController@getExcludedDeliveryTimeDate'
+)->name('cities.getExcludedDeliveryTimeDate');
 
 Route::get(
     'cities/{city_id}/delivery-dates-times/{number_of_days}',
     'CityController@getDeliveryDate'
 )->name('cities.getDeliveryDate');
 Route::post(
-    'excluded-delivery-date',
+    'excluded-delivery-dates',
     'CityController@excludedDeliveryTimeDate'
 )->name('cities.excludedDeliveryTimeDate');
 

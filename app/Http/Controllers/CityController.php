@@ -17,7 +17,7 @@ class CityController extends Controller
      */
     public function index()
     {
-        return City::all();
+        //return view('cities.index')->with('cities', City::all());
     }
 
     /**
@@ -27,7 +27,8 @@ class CityController extends Controller
      */
     public function create()
     {
-        //
+        //$city = new City();
+        //return view('cities.create')->with('city', $city);
     }
 
     /**
@@ -45,14 +46,17 @@ class CityController extends Controller
         $cities = City::all();
         foreach ($cities as $city) {
             if ($city->name == $request->name) {
-                return 'failed';
-                // return redirect()->route('delivery-times.index')->with("failed", " delivery time is exist");
+                return response()->json([
+                    'message' => 'failed : this name of city is exist'
+                ]);
             }
         }
         $city = city::create([
             'name' => $request->name
         ]);
-        return 'Success';
+        return response()->json([
+            'message' => 'success : city has been add'
+        ]);
     }
     /**
      * Update the specified resource in storage.
@@ -61,16 +65,18 @@ class CityController extends Controller
      * @param  \App\City  $city
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, City $city)
+    public function update(Request $request)
     {
         $this->validate($request, [
             'name' => 'required'
         ]);
 
-        City::where('id', $city)->update([
+        City::where('id', $request->city)->update([
             'name' => $request->name
         ]);
-        return 'City has been updated';
+        return response()->json([
+            'message' => 'City has been updated'
+        ]);
     }
 
     /**
@@ -82,21 +88,14 @@ class CityController extends Controller
     public function destroy($id)
     {
         $city = City::findOrFail($id);
-        $_dates = Date::where('city_id', $id)->get();
-        foreach ($_dates as $date) {
-            $date->delete();
-        }
-        if ($city->delete()) {
-            return response()->json([
-                'message' => 'city was deleted successfully'
-            ]);
-        } else {
-            return response()->json([
-                'message' => 'delete failed of Cities'
-            ]);
-        }
+
+        $city->delete();
+        return response()->json([
+            'message' => 'city was deleted successfully'
+        ]);
     }
 
+    //attaching cities to delivery time
     public function storeDeliveryTimes(Request $request)
     {
         $city = City::find($request->city_id);
@@ -107,6 +106,7 @@ class CityController extends Controller
             'message' => 'delivery-time has been stored successfully'
         ]);
     }
+    //Store excluded delivery time on a certain date for a given city
     public function excludedDeliveryTimeDate(Request $request)
     {
         $this->validate($request, [
@@ -114,8 +114,6 @@ class CityController extends Controller
             'city_id' => 'required',
             'date' => 'required'
         ]);
-        //$date = Carbon::parse()->format('Y-m-d');
-        // return $date;
         Date::create([
             'date' => $request->date,
             'city_id' => $request->city_id,
@@ -125,13 +123,15 @@ class CityController extends Controller
             'message' => 'delivery date excluded stored !'
         ]);
     }
-    public function getCityDeliveryTimes(Request $request)
+    //return all delivery time excluded excluded delivery time on a certain date for  city
+    public function getExcludedDeliveryTimeDate(Request $request)
     {
         //$city = City::findOrFail($request->city_id);
         return response()->json([
             'dates' => Date::where('city_id', $request->city_id)->get()
         ]);
     }
+    //get the available delivery times in city
     public function getDeliveryDate(Request $request)
     {
         $city = City::where('id', $request->city_id)->first();
@@ -139,16 +139,19 @@ class CityController extends Controller
         $dt = $city->delivery_times()->get();
         //get all date excluded
         $excluded = Date::all();
-
+        //create today's date
         $now = Carbon::now();
+        //create table dates
         $dates = [];
-
         for ($c = 0; $c < $request->number_of_days; $c++) {
+            //add day
             $date = $now->addDays($c);
+            //get date exclude in object excluded
             $todays_exclusions = $excluded->where(
                 'date',
                 $date->format('Y-m-d')
             );
+            //affectation delivery time in $todays_dt
             $todays_dt = $dt;
             $part['date'] = $date->format('Y-m-d');
             $part['day_name'] = $date->format('l');
